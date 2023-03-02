@@ -1,9 +1,13 @@
 const overview = document.querySelector(".overview");
-const username = "marts494"
+const username = "marts494";
 const repoList = document.querySelector(".repo-list");
+const allReposContainer = document.querySelector(".repos");
+const repoData = document.querySelector(".repo-data");
+const viewReposButton = document.querySelector(".view-repos");
+const filterInput = document.querySelector(".filter-repos");
 
 const gitUserInfo = async function () {
-  const userInfo = await fetch('https://api.github.com/users/${username}');
+  const userInfo = await fetch(`https://api.github.com/users/${username}`);
   const data = await userInfo.json();
   displayUserInfo(data);
 };
@@ -25,20 +29,21 @@ const displayUserInfo = function (data) {
     </div>
   `;
   overview.append(div);
-  gitRepos();
+  gitRepos(username);
 };
 
-const gitRepos = async function () {
-  const fetchRepos = await fetch('https://api.github.com/users/${username}/repos?sort=updated&per_page=100');
+const gitRepos = async function (username) {
+  const fetchRepos = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
   const repoData = await fetchRepos.json();
   displayRepos(repoData);
 };
 
 const displayRepos = function (repos) {
+  filterInput.classList.remove("hide");
   for (const repo of repos) {
     const repoItem = document.createElement("li");
     repoItem.classList.add("repo");
-    repoItem.innerHTML = '<h3>${repo.name}</h3>';
+    repoItem.innerHTML = `<h3>${repo.name}</h3>`;
     repoList.append(repoItem);
   }
 };
@@ -51,21 +56,24 @@ repoList.addEventListener("click", function (e) {
 });
 
 const getRepoInfo = async function (repoName) {
-  const fetchInfo = await fetch('https://api.github.com/repos/${username}/${repoName}');
+  const fetchInfo = await fetch(`https://api.github.com/repos/${username}/${repoName}`);
   const repoInfo = await fetchInfo.json();
-  console.log(repoInfo);
+
+  // Grab languages
   const fetchLanguages = await fetch(repoInfo.languages_url);
   const languageData = await fetchLanguages.json();
 
+  // Make a list of languages
   const languages = [];
   for (const language in languageData) {
-    languages.push(lnaguage);
+    languages.push(language);
   }
 
   displayRepoInfo(repoInfo, languages);
 };
 
 const displayRepoInfo = function (repoInfo, languages) {
+  viewReposButton.classList.remove("hide");
   repoData.innerHTML = "";
   repoData.classList.remove("hide");
   allReposContainer.classList.add("hide");
@@ -79,3 +87,25 @@ const displayRepoInfo = function (repoInfo, languages) {
   `;
   repoData.append(div);
 };
+
+viewReposButton.addEventListener("click", function () {
+  allReposContainer.classList.remove("hide");
+  repoData.classList.add("hide");
+  viewReposButton.classList.add("hide");
+});
+
+// // Dynamic search
+filterInput.addEventListener("input", function (e) {
+  const searchText = e.target.value;
+  const repos = document.querySelectorAll(".repo");
+  const searchLowerText = searchText.toLowerCase();
+
+  for (const repo of repos) {
+    const repoLowerText = repo.innerText.toLowerCase();
+    if (repoLowerText.includes(searchLowerText)) {
+      repo.classList.remove("hide");
+    } else {
+      repo.classList.add("hide");
+    }
+  }
+});
