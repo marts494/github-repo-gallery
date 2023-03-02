@@ -1,12 +1,15 @@
-@@ -1,23 +1,23 @@
 const overview = document.querySelector(".overview");
-const username = "marts494";
+const username = "marts494"
+const repoList = document.querySelector(".repo-list");
+
 const gitUserInfo = async function () {
-  const userInfo = await fetch(`https://api.github.com/users/${username}`);
+  const userInfo = await fetch('https://api.github.com/users/${username}');
   const data = await userInfo.json();
   displayUserInfo(data);
 };
+
 gitUserInfo();
+
 const displayUserInfo = function (data) {
   const div = document.createElement("div");
   div.classList.add("user-info");
@@ -15,7 +18,6 @@ const displayUserInfo = function (data) {
       <img alt="user avatar" src=${data.avatar_url} />
     </figure>
     <div>
-      <p><strong>Username:</strong> ${data.name}</p>
       <p><strong>Name:</strong> ${data.name}</p>
       <p><strong>Bio:</strong> ${data.bio}</p>
       <p><strong>Location:</strong> ${data.location}</p>
@@ -23,4 +25,5 @@ const displayUserInfo = function (data) {
     </div>
   `;
   overview.append(div);
+  gitRepos();
 };
